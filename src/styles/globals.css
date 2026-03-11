@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #1a1917;
+  --paper: #faf8f5;
+  --vermillion: #c0392b;
+  --moss: #4a634a;
+  --card: rgba(255, 255, 255, 0.85);
+  --border: rgba(232, 227, 220, 0.6);
+  --shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.08);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+}
+
+body {
+  @apply bg-neutral-950 text-ink antialiased;
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(192, 57, 43, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(74, 99, 74, 0.03) 0%, transparent 40%);
+}
+
+.app-shell {
+  @apply min-h-screen flex items-center justify-center p-0 sm:p-4;
+}
+
+.app-frame {
+  @apply w-full max-w-[430px] h-[100dvh] sm:h-[844px] bg-paper sm:rounded-[3rem] flex flex-col overflow-hidden relative;
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.2);
+}
+
+.glass {
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+.shadow-premium {
+  box-shadow: var(--shadow);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+}
