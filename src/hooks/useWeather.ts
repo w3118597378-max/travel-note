@@ -43,36 +43,31 @@ export function useWeather(lat: number, lng: number, date: string): UseWeatherRe
 
     async function fetchWeather() {
       try {
-        const apiKey = import.meta.env.VITE_SENIVERSE_KEY
-        if (!apiKey) {
-          setState({ loading: false, error: 'missing_seniverse_key', hourly: [] })
-          return
-        }
-
         setState((prev) => ({ ...prev, loading: true, error: undefined }))
 
-        const url = new URL('https://api.seniverse.com/v3/weather/daily.json')
-        url.searchParams.set('key', apiKey)
-        url.searchParams.set('location', `${lat.toFixed(2)}:${lng.toFixed(2)}`)
-        url.searchParams.set('language', 'zh-Hans')
-        url.searchParams.set('unit', 'c')
-        url.searchParams.set('start', '0')
+        const url = new URL('/api/weather', window.location.origin)
+        url.searchParams.set('lat', lat.toFixed(4))
+        url.searchParams.set('lng', lng.toFixed(4))
         url.searchParams.set('days', '1')
 
-        const res = await fetch(url.toString())
+        const controller = new AbortController()
+        const timeout = window.setTimeout(() => controller.abort(), 8000)
+        const res = await fetch(url.toString(), { signal: controller.signal })
+        window.clearTimeout(timeout)
+
         if (!res.ok) {
           throw new Error(`weather http ${res.status}`)
         }
         const data = await res.json()
 
-        const daily = data?.results?.[0]?.daily?.[0]
+        const daily = data?.daily?.[0]
         if (!daily) {
-          throw new Error('seniverse_no_daily')
+          throw new Error('weather_no_daily')
         }
 
         const high = Number(daily.high)
         const low = Number(daily.low)
-        const codeDay = Number(daily.code_day ?? daily.code ?? 0)
+        const codeDay = Number(daily.codeDay ?? daily.code_day ?? daily.code ?? 0)
         const precip = Number(daily.precip ?? 0)
 
         const effectiveHourly: WeatherPoint[] = [12, 15, 18].map((h) => ({
@@ -98,9 +93,10 @@ export function useWeather(lat: number, lng: number, date: string): UseWeatherRe
         }
       } catch (error: any) {
         if (cancelled) return
+        const isAbort = String(error?.name || '').toLowerCase().includes('abort')
         const nextState: UseWeatherResult = {
           loading: false,
-          error: error?.message ?? 'weather_error',
+          error: isAbort ? 'weather_timeout' : error?.message ?? 'weather_error',
           hourly: []
         }
         cache.set(cacheKey, nextState)

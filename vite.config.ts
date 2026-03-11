@@ -41,25 +41,12 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\.seniverse\.com\/v3\/weather\/daily\.json/,
+            urlPattern: ({ url }) => url.pathname === '/api/weather',
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'weather-seniverse',
+              cacheName: 'weather-api',
               expiration: {
                 maxAgeSeconds: 300
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: {
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
               }
             }
           }
